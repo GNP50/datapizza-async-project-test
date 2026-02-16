@@ -1,0 +1,210 @@
+version: '3.9'
+
+# Development Docker Compose with Fact-Checking Architecture
+# Includes:
+# - Hot reloading for backend and worker
+# - Debug ports exposed
+# - Volume mounts for live code changes
+# - Detailed logging
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: chatbot-postgres-dev
+    environment:
+      POSTGRES_DB: chatbot_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - chatbot-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: chatbot-redis-dev
+    ports:
+      - "6379:6379"
+    networks:
+      - chatbot-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: chatbot-qdrant-dev
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data_dev:/qdrant/storage
+    networks:
+      - chatbot-network
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/6333' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: chatbot-backend-dev
+    ports:
+      - "8000:8000"
+      - "5678:5678"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/chatbot_db
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      JWT_SECRET: dev-secret-key-change-in-production
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      STORAGE_PROVIDER: local
+      STORAGE_PATH: /app/data/uploads
+      DOUBLE_CHECK_ENABLED: "false"
+      # Ollama Configuration
+      LLM_PROVIDER: ollama
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY}
+      OLLAMA_MODEL: gpt-oss:120b-cloud
+      # Qdrant Configuration
+      QDRANT_URL: http://qdrant:6333
+      # Ollama Embeddings
+      EMBEDDING_PROVIDER: ollama
+      EMBEDDING_MODEL: nomic-embed-text
+      # OCR Configuration with Ollama
+      OCR_LLM_PROVIDER: ollama
+      OCR_MODEL: ministral-3:14b-cloud
+      OCR_PROVIDER: llm
+      # Parallel Processing Configuration
+      OCR_PARALLEL: "false"
+      DOCUMENTS_PARALLEL: "false"
+      WEB_SEARCH_PARALLEL: "true"
+      OCR_MAX_CONCURRENCY: ${OCR_MAX_CONCURRENCY:-1}
+      DOCUMENTS_MAX_CONCURRENCY: ${DOCUMENTS_MAX_CONCURRENCY:-1}
+      WEB_SEARCH_MAX_CONCURRENCY: ${WEB_SEARCH_MAX_CONCURRENCY:-100}
+      OCR_MAX_RETRIES: ${OCR_MAX_RETRIES:-3}
+      DOCUMENTS_MAX_RETRIES: ${DOCUMENTS_MAX_RETRIES:-3}
+      WEB_SEARCH_MAX_RETRIES: ${WEB_SEARCH_MAX_RETRIES:-3}
+      # Logging
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./logs:/app/logs
+      - backend_data_dev:/app/data
+    networks:
+      - chatbot-network
+    command: >
+      sh -c "
+        echo '🚀 Running migrations...' &&
+        alembic upgrade head &&
+        echo '🌐 Starting Backend with Debugger (Port 5678)...' &&
+        python -m debugpy --listen 0.0.0.0:5678 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  worker:
+    ports:
+      - "5679:5679"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: chatbot-worker-dev
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/chatbot_db
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      STORAGE_PROVIDER: local
+      STORAGE_PATH: /app/data/uploads
+      # Ollama Configuration
+      LLM_PROVIDER: ollama
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY}
+      OLLAMA_MODEL: gpt-oss:120b-cloud
+      # Qdrant Configuration
+      QDRANT_URL: http://qdrant:6333
+      # Ollama Embeddings
+      EMBEDDING_PROVIDER: ollama
+      EMBEDDING_MODEL: nomic-embed-text
+      # OCR Configuration with Ollama
+      OCR_LLM_PROVIDER: ollama
+      OCR_MODEL: ministral-3:14b-cloud
+      OCR_PROVIDER: llm
+      # Parallel Processing Configuration
+      OCR_PARALLEL: "false"
+      DOCUMENTS_PARALLEL: "false"
+      WEB_SEARCH_PARALLEL: "true"
+      OCR_MAX_CONCURRENCY: ${OCR_MAX_CONCURRENCY:-1}
+      DOCUMENTS_MAX_CONCURRENCY: ${DOCUMENTS_MAX_CONCURRENCY:-1}
+      WEB_SEARCH_MAX_CONCURRENCY: ${WEB_SEARCH_MAX_CONCURRENCY:-100}
+      OCR_MAX_RETRIES: ${OCR_MAX_RETRIES:-3}
+      DOCUMENTS_MAX_RETRIES: ${DOCUMENTS_MAX_RETRIES:-3}
+      WEB_SEARCH_MAX_RETRIES: ${WEB_SEARCH_MAX_RETRIES:-3}
+      # Logging
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+      - ./logs:/app/logs
+      - backend_data_dev:/app/data
+    networks:
+      - chatbot-network
+    command: >
+      sh -c "
+        echo '⚙️ Starting Worker with Debugger (Port 5679)...' &&
+        python -m debugpy --listen 0.0.0.0:5679 -m celery -A app.worker.celery_app worker --loglevel=info --concurrency=2
+      "
+
+  frontend-next:
+    build:
+      context: ./frontend-next
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    container_name: chatbot-frontend-dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    networks:
+      - chatbot-network
+
+volumes:
+  postgres_data_dev:
+  backend_data_dev:
+  qdrant_data_dev:
+
+networks:
+  chatbot-network:
+    driver: bridge

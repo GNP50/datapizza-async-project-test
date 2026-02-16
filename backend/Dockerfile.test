@@ -1,0 +1,36 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    postgresql-client \
+    libpq-dev \
+    poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python package managers
+RUN pip install --no-cache-dir uv
+
+# Copy dependency file
+COPY pyproject.toml ./
+
+# Install dependencies with increased timeout and retries
+ENV UV_HTTP_TIMEOUT=300
+ENV UV_REQUEST_TIMEOUT=300
+RUN uv pip install --system -r pyproject.toml && \
+    uv pip install --system pytest pytest-asyncio pytest-cov httpx faker factory-boy
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data/uploads
+
+# Set environment variable for testing
+ENV ENVIRONMENT=test
+ENV PYTHONUNBUFFERED=1
+
+# Run tests by default
+CMD ["pytest", "-v", "--tb=short", "--cov=app", "--cov-report=term-missing"]

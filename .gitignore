@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+
+# Backend
+backend/.env
+backend/.env.local
+backend/logs/
+backend/data/uploads/
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+
+# Frontend
+frontend-next/node_modules/
+frontend-next/.next/
+frontend-next/out/
+frontend-next/.env.local
+frontend-next/.env*.local
+frontend-next/yarn-error.log
+frontend-next/.DS_Store
+
+# Docker
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets
+*.pem
+*.key
+.env
+.env.local
+.env.openai

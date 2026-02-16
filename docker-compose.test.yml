@@ -1,0 +1,127 @@
+version: '3.9'
+
+# Test Docker Compose Configuration
+# Uses same configuration as .dev but with test database and runs pytest
+# Usage: docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: chatbot-postgres-test
+    environment:
+      POSTGRES_DB: chatbot_test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_test
+    # Use tmpfs for faster tests (data in memory)
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    networks:
+      - chatbot-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  redis-test:
+    image: redis:7-alpine
+    container_name: chatbot-redis-test
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts
+    networks:
+      - chatbot-test-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  qdrant-test:
+    image: qdrant/qdrant:latest
+    container_name: chatbot-qdrant-test
+    ports:
+      - "6335:6333"  # Different port to avoid conflicts
+      - "6336:6334"
+    tmpfs:
+      - /qdrant/storage  # Use tmpfs for faster tests
+    networks:
+      - chatbot-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/6333' || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    container_name: chatbot-backend-test
+    environment:
+      # Test Database Configuration
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres_test@postgres-test:5432/chatbot_test_db
+
+      # Redis Configuration
+      REDIS_URL: redis://redis-test:6379/0
+      CELERY_BROKER_URL: redis://redis-test:6379/0
+      CELERY_RESULT_BACKEND: redis://redis-test:6379/0
+
+      # Test Security Settings
+      JWT_SECRET: test-secret-key-only-for-testing
+      CORS_ORIGINS: http://localhost:3000
+
+      # Storage Configuration
+      STORAGE_PROVIDER: local
+      STORAGE_PATH: /app/data/uploads
+
+      # Disable double-check for tests
+      DOUBLE_CHECK_ENABLED: "false"
+
+      # Ollama Configuration (same as .dev)
+      LLM_PROVIDER: ollama
+      OLLAMA_BASE_URL: https://api.ollama.com
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY}
+      OLLAMA_MODEL: gpt-oss:120b-cloud
+      EMBEDDING_MODEL: qwen3-embedding:4b
+
+      # OCR Configuration (same as .dev)
+      OCR_LLM_PROVIDER: ollama
+      OCR_MODEL: ministral-3:14b-cloud
+      OCR_PROVIDER: llm
+
+      # Qdrant Configuration
+      QDRANT_URL: http://qdrant-test:6333
+
+      # Logging Configuration
+      LOG_LEVEL: DEBUG
+      PYTHONUNBUFFERED: "1"
+
+      # Test Environment
+      ENVIRONMENT: test
+
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+      qdrant-test:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./logs:/app/logs
+    networks:
+      - chatbot-test-network
+    command: >
+      sh -c "
+        echo '🧪 Setting up test database...' &&
+        alembic upgrade head &&
+        echo '🧪 Running tests...' &&
+        pytest -v --tb=short --cov=app --cov-report=term-missing --cov-report=html &&
+        echo '✅ Tests completed!'
+      "
+
+networks:
+  chatbot-test-network:
+    driver: bridge
