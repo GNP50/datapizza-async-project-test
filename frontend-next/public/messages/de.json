@@ -1,0 +1,41 @@
+{
+  "settings": {
+    "title": "Einstellungen",
+    "description": "Passen Sie Ihre Erfahrung an und verwalten Sie Ihre Präferenzen",
+    "theme": {
+      "title": "Design",
+      "description": "Wählen Sie Ihr bevorzugtes Farbschema",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "ocean": "Ozean",
+      "forest": "Wald",
+      "sunset": "Sonnenuntergang",
+      "purple": "Lila Traum"
+    },
+    "language": {
+      "title": "Sprache",
+      "description": "Wählen Sie Ihre bevorzugte Sprache"
+    },
+    "notifications": {
+      "title": "Benachrichtigungen",
+      "description": "Verwalten Sie Ihre Benachrichtigungspräferenzen",
+      "push": {
+        "title": "Push-Benachrichtigungen",
+        "description": "Erhalten Sie Benachrichtigungen in der App"
+      },
+      "email": {
+        "title": "E-Mail-Benachrichtigungen",
+        "description": "Erhalten Sie Updates per E-Mail"
+      }
+    },
+    "display": {
+      "title": "Anzeige",
+      "description": "Passen Sie an, wie Inhalte angezeigt werden",
+      "compactMode": {
+        "title": "Kompaktmodus",
+        "description": "Verwenden Sie ein kompakteres Layout"
+      }
+    },
+    "saving": "Speichern..."
+  }
+}

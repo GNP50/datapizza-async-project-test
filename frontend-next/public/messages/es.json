@@ -1,0 +1,41 @@
+{
+  "settings": {
+    "title": "Configuración",
+    "description": "Personaliza tu experiencia y gestiona tus preferencias",
+    "theme": {
+      "title": "Tema",
+      "description": "Elige tu esquema de color preferido",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "ocean": "Océano",
+      "forest": "Bosque",
+      "sunset": "Atardecer",
+      "purple": "Sueño Púrpura"
+    },
+    "language": {
+      "title": "Idioma",
+      "description": "Selecciona tu idioma preferido"
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "description": "Gestiona tus preferencias de notificación",
+      "push": {
+        "title": "Notificaciones Push",
+        "description": "Recibe notificaciones en la aplicación"
+      },
+      "email": {
+        "title": "Notificaciones por Email",
+        "description": "Recibe actualizaciones por correo electrónico"
+      }
+    },
+    "display": {
+      "title": "Visualización",
+      "description": "Personaliza cómo se muestra el contenido",
+      "compactMode": {
+        "title": "Modo Compacto",
+        "description": "Usa un diseño más condensado"
+      }
+    },
+    "saving": "Guardando..."
+  }
+}

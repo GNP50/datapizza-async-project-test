@@ -1,0 +1,56 @@
+environment: development
+
+database:
+  provider: postgresql
+  pool_size: 20
+  echo: false
+
+storage:
+  provider: local
+  path_format: "{year}/{month}/{day}/{user_id}/chats/{chat_id}/{doc_id}"
+  local_path: "./data/uploads"
+
+cache:
+  provider: redis
+  ttl: 3600
+
+queue:
+  provider: redis
+
+email:
+  provider: smtp
+  verification_enabled: true
+
+auth:
+  double_check_enabled: true
+  jwt_algorithm: HS256
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 7
+
+rag:
+  enabled: false
+  provider: pinecone
+  dimension: 1536
+  metric: cosine
+
+features:
+  enable_fact_checking: true
+  enable_web_search: false
+
+logging:
+  level: DEBUG
+  file: logs/app.log
+  format: text
+
+  cloudwatch:
+    enabled: false
+    log_group: /chatbot/backend
+    log_stream: backend
+
+  datadog:
+    enabled: false
+    api_key: ""
+
+  sentry:
+    enabled: false
+    dsn: ""

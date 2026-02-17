@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Next.js
+.next
+out
+dist
+
+# Dependencies
+.pnp
+.pnp.js
+
+# Testing
+coverage
+.nyc_output
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env.local
+.env.*.local
+
+# Yarn
+.yarn/cache
+.yarn/install-state.gz
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.circleci

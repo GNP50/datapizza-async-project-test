@@ -1,0 +1,102 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pizza slice shape -->
+  <defs>
+    <linearGradient id="crustGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F4C430;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4A017;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cheeseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Main pizza slice (triangular shape) -->
+  <path d="M 100 40 L 160 160 Q 130 170 100 165 Q 70 170 40 160 Z"
+        fill="url(#cheeseGradient)"
+        stroke="#D4A017"
+        stroke-width="2"
+        filter="url(#shadow)"/>
+
+  <!-- Crust edge (arc at bottom) -->
+  <path d="M 40 160 Q 70 175 100 170 Q 130 175 160 160"
+        fill="url(#crustGradient)"
+        stroke="#B8860B"
+        stroke-width="2"/>
+
+  <!-- Pepperoni/toppings with checkmark theme -->
+  <!-- Pepperoni 1 with checkmark -->
+  <circle cx="90" cy="100" r="12" fill="#C74634"/>
+  <circle cx="90" cy="100" r="11" fill="#E74C3C"/>
+  <path d="M 85 100 L 88 103 L 95 96"
+        stroke="white"
+        stroke-width="2"
+        stroke-linecap="round"
+        fill="none"/>
+
+  <!-- Pepperoni 2 with checkmark -->
+  <circle cx="120" cy="120" r="12" fill="#C74634"/>
+  <circle cx="120" cy="120" r="11" fill="#E74C3C"/>
+  <path d="M 115 120 L 118 123 L 125 116"
+        stroke="white"
+        stroke-width="2"
+        stroke-linecap="round"
+        fill="none"/>
+
+  <!-- Pepperoni 3 with checkmark -->
+  <circle cx="100" cy="80" r="12" fill="#C74634"/>
+  <circle cx="100" cy="80" r="11" fill="#E74C3C"/>
+  <path d="M 95 80 L 98 83 L 105 76"
+        stroke="white"
+        stroke-width="2"
+        stroke-linecap="round"
+        fill="none"/>
+
+  <!-- Olive pieces -->
+  <ellipse cx="75" cy="125" rx="6" ry="8" fill="#2C3E50" opacity="0.8"/>
+  <ellipse cx="75" cy="125" rx="3" ry="4" fill="#34495E"/>
+
+  <ellipse cx="130" cy="95" rx="6" ry="8" fill="#2C3E50" opacity="0.8"/>
+  <ellipse cx="130" cy="95" rx="3" ry="4" fill="#34495E"/>
+
+  <!-- Basil leaves (green accent) -->
+  <ellipse cx="110" cy="140" rx="8" ry="5" fill="#27AE60" opacity="0.9" transform="rotate(25 110 140)"/>
+  <path d="M 110 138 Q 112 140 110 142" stroke="#1E8449" stroke-width="1" fill="none"/>
+
+  <!-- Cheese drip effect -->
+  <path d="M 45 155 Q 48 165 45 170"
+        stroke="#FFA500"
+        stroke-width="3"
+        stroke-linecap="round"
+        fill="none"
+        opacity="0.7"/>
+
+  <path d="M 155 155 Q 152 165 155 170"
+        stroke="#FFA500"
+        stroke-width="3"
+        stroke-linecap="round"
+        fill="none"
+        opacity="0.7"/>
+
+  <!-- AI sparkle effect at the tip -->
+  <g transform="translate(100, 40)">
+    <path d="M 0 -8 L 1 -2 L 7 -1 L 1 0 L 0 6 L -1 0 L -7 -1 L -1 -2 Z"
+          fill="#3498DB"
+          opacity="0.9"/>
+    <path d="M 0 -6 L 0.7 -1.5 L 5 -0.7 L 0.7 0 L 0 4.5 L -0.7 0 L -5 -0.7 L -0.7 -1.5 Z"
+          fill="#5DADE2"
+          opacity="1"/>
+  </g>
+
+  <!-- Smaller sparkles -->
+  <path d="M 140 60 L 140.5 62 L 142.5 62.5 L 140.5 63 L 140 65 L 139.5 63 L 137.5 62.5 L 139.5 62 Z"
+        fill="#3498DB"
+        opacity="0.7"/>
+
+  <path d="M 65 70 L 65.5 72 L 67.5 72.5 L 65.5 73 L 65 75 L 64.5 73 L 62.5 72.5 L 64.5 72 Z"
+        fill="#3498DB"
+        opacity="0.7"/>
+</svg>

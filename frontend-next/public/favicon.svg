@@ -1,0 +1,23 @@
+<svg width="32" height="32" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="crust" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F4C430;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4A017;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cheese" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M 100 40 L 160 160 Q 130 170 100 165 Q 70 170 40 160 Z" fill="url(#cheese)" stroke="#D4A017" stroke-width="2"/>
+  <path d="M 40 160 Q 70 175 100 170 Q 130 175 160 160" fill="url(#crust)" stroke="#B8860B" stroke-width="2"/>
+  <circle cx="90" cy="100" r="11" fill="#E74C3C"/>
+  <path d="M 85 100 L 88 103 L 95 96" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <circle cx="120" cy="120" r="11" fill="#E74C3C"/>
+  <path d="M 115 120 L 118 123 L 125 116" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <circle cx="100" cy="80" r="11" fill="#E74C3C"/>
+  <path d="M 95 80 L 98 83 L 105 76" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <g transform="translate(100, 40)">
+    <path d="M 0 -6 L 0.7 -1.5 L 5 -0.7 L 0.7 0 L 0 4.5 L -0.7 0 L -5 -0.7 L -0.7 -1.5 Z" fill="#3498DB"/>
+  </g>
+</svg>

@@ -1,0 +1,41 @@
+{
+  "settings": {
+    "title": "Settings",
+    "description": "Customize your experience and manage your preferences",
+    "theme": {
+      "title": "Theme",
+      "description": "Choose your preferred color scheme",
+      "light": "Light",
+      "dark": "Dark",
+      "ocean": "Ocean",
+      "forest": "Forest",
+      "sunset": "Sunset",
+      "purple": "Purple Dream"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Select your preferred language"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Manage your notification preferences",
+      "push": {
+        "title": "Push Notifications",
+        "description": "Receive notifications in the app"
+      },
+      "email": {
+        "title": "Email Notifications",
+        "description": "Receive updates via email"
+      }
+    },
+    "display": {
+      "title": "Display",
+      "description": "Customize how content is displayed",
+      "compactMode": {
+        "title": "Compact Mode",
+        "description": "Use a more condensed layout"
+      }
+    },
+    "saving": "Saving..."
+  }
+}
