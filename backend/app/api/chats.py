@@ -13,6 +13,8 @@ from app.core.security import get_current_user
 from app.schemas.chat import ChatCreate, ChatUpdate, ChatResponse
 from app.services.vector import chat_index_manager
 from app.services.cleanup_manager import cleanup_manager
+from app.services.cache import cache_manager
+from app.services.cache_decorator import cache_response
 from app.utils.pagination import paginate_query, add_pagination_headers
 
 logger = logging.getLogger(__name__)
@@ -152,6 +154,7 @@ async def create_chat(
 
 
 @router.get("/{chat_id}", response_model=ChatResponse)
+@cache_response(prefix="chat")
 async def get_chat(
     chat_id: UUID,
     current_user: User = Depends(get_current_user),
@@ -192,6 +195,13 @@ async def update_chat(
     chat.title = chat_data.title
     await db.commit()
     await db.refresh(chat)
+
+    # Invalidate Redis L1 cache entries for this specific chat only
+    try:
+        await cache_manager.clear_pattern(f"cache:chat:{chat_id}:*")
+        logger.debug(f"Invalidated Redis cache for updated chat {chat_id}")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate Redis cache for chat {chat_id}: {e}")
 
     # Re-index in Qdrant for semantic search
     try:
@@ -277,6 +287,13 @@ async def delete_chat(
     # 3. Delete the chat itself from database (cascade will handle remaining relations)
     await db.delete(chat)
     await db.commit()
+
+    # Invalidate Redis L1 cache entries for this specific chat only
+    try:
+        await cache_manager.clear_pattern(f"cache:chat:{chat_id}:*")
+        logger.debug(f"Invalidated Redis cache for deleted chat {chat_id}")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate Redis cache for chat {chat_id}: {e}")
 
     # 4. Delete from Qdrant chat search index
     try:

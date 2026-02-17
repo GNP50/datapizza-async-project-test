@@ -22,7 +22,12 @@ from app.services.storage import storage_manager
 from app.worker.tasks.processing import process_message_task
 from app.worker.tasks.flashcards import generate_flashcards_task
 from app.services.processing_cache_service import processing_cache_service
+from app.services.cache import cache_manager
+from app.services.cache_decorator import cache_response
 from app.utils.pagination import paginate_query, add_pagination_headers
+
+import logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["documents"])
 
@@ -150,6 +155,7 @@ async def download_document(
 
 
 @router.get("/documents/{document_id}", response_model=DocumentDetailResponse)
+@cache_response(prefix="document")
 async def get_document(
     document_id: UUID,
     current_user: User = Depends(get_current_user),
@@ -219,7 +225,14 @@ async def reprocess_document(
         delete_document=False  # Don't delete the document, just clean its data
     )
 
-    # Reset document state
+    # Invalidate Redis L1 cache for this document
+    try:
+        await cache_manager.clear_pattern(f"cache:document:{document_id}:*")
+        logger.debug(f"Invalidated Redis cache for reprocessed document {document_id}")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate Redis cache for document {document_id}: {e}")
+
+    # Reset document state and invalidate Redis cache
     document.processing_state = DocumentProcessingState.PENDING
     document.processed = False
 
@@ -305,6 +318,13 @@ async def reprocess_from_stage(
     target_state = stage_order[stage_idx][1]
     document.processing_state = target_state
     document.processed = False
+
+    # Invalidate Redis L1 cache for this document
+    try:
+        await cache_manager.clear_pattern(f"cache:document:{document_id}:*")
+        logger.debug(f"Invalidated Redis cache for document {document_id} (reprocess-from-stage)")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate Redis cache for document {document_id}: {e}")
 
     # Enable web search if requested (only when relaunching web_verification stage)
     if body.enable_web_search is not None and body.stage == "web_verification":

@@ -13,6 +13,7 @@ from app.models.fact import Fact
 from app.models.flashcard import Flashcard
 from app.services.processing_cache_service import processing_cache_service
 from app.services.rag.vectorstore import vectorstore
+from app.services.cache import cache_manager
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +114,13 @@ class CleanupManager:
             logger.info(f"Invalidated {stats['cache_entries_deleted']} cache entries for document {document_id} (OCR preserved)")
         except Exception as e:
             logger.warning(f"Failed to invalidate cache for document {document_id}: {e}")
+
+        # 3b. Purge Redis L1 cache entries only for this specific document
+        try:
+            redis_deleted = await cache_manager.clear_pattern(f"cache:document:{document_id}:*")
+            logger.info(f"Purged {redis_deleted} Redis cache entries for document {document_id}")
+        except Exception as e:
+            logger.warning(f"Failed to purge Redis cache for document {document_id}: {e}")
 
         # 4. Delete vectors from vectorstore
         try:
@@ -237,6 +245,13 @@ class CleanupManager:
                 logger.info(f"Deleted message {message_id}")
             except Exception as e:
                 logger.warning(f"Failed to delete message {message_id}: {e}")
+
+        # Purge Redis L1 cache entries only for this specific message
+        try:
+            redis_deleted = await cache_manager.clear_pattern(f"cache:message:{message_id}:*")
+            logger.info(f"Purged {redis_deleted} Redis cache entries for message {message_id}")
+        except Exception as e:
+            logger.warning(f"Failed to purge Redis cache for message {message_id}: {e}")
 
         # Commit all changes
         await db.commit()

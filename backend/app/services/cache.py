@@ -8,7 +8,7 @@ class CacheManager:
     def __init__(self):
         self.settings = get_settings()
         self.redis: aioredis.Redis | None = None
-        self.default_ttl = 3600
+        self.default_ttl = self.settings.cache_ttl
 
     async def connect(self):
         self.redis = await aioredis.from_url(

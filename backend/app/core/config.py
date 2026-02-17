@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     database_echo: bool = Field(default=False)
 
     redis_url: str = Field(default="redis://localhost:6379/0")
+    cache_ttl: int = Field(default=3600)  # Default TTL in seconds for Redis cache entries
 
     jwt_secret: str = Field(default="change-this-secret-key")
     jwt_algorithm: str = Field(default="HS256")
